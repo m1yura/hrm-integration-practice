@@ -1,0 +1,41 @@
+2026-06-05 15:34:07,405 [DEBUG] DemoSystem - This is DEBUG message - detailed diagnostic
+2026-06-05 15:34:07,405 [INFO] DemoSystem - This is INFO message - normal operation
+2026-06-05 15:34:07,405 [WARNING] DemoSystem - This is WARNING message - something suspicious
+2026-06-05 15:34:07,405 [ERROR] DemoSystem - This is ERROR message - operation failed
+2026-06-05 15:34:07,406 [INFO] DemoSystem - Business event with properties
+2026-06-05 15:34:07,406 [INFO] DemoSystem - Attempt 1: Calling unstable service
+2026-06-05 15:34:07,928 [INFO] DemoSystem - Attempt 2: Calling unstable service
+2026-06-05 15:34:08,930 [INFO] DemoSystem - Attempt 3: Calling unstable service
+2026-06-05 15:34:09,432 [INFO] DemoSystem - Attempt 4: Calling unstable service
+2026-06-05 15:34:11,436 [INFO] DemoSystem - Attempt 5: Calling unstable service
+2026-06-05 15:34:11,938 [INFO] DemoSystem - Stats: Success=4, Failures=1
+2026-06-05 15:34:11,938 [INFO] DemoSystem - Request 1: Checking circuit state: closed
+2026-06-05 15:36:38,220 [DEBUG] DemoSystem - This is DEBUG message - detailed diagnostic
+2026-06-05 15:36:38,220 [INFO] DemoSystem - This is INFO message - normal operation
+2026-06-05 15:36:38,220 [WARNING] DemoSystem - This is WARNING message - something suspicious
+2026-06-05 15:36:38,220 [ERROR] DemoSystem - This is ERROR message - operation failed
+2026-06-05 15:36:38,220 [INFO] DemoSystem - Business event with properties
+2026-06-05 15:36:38,220 [INFO] DemoSystem - Attempt 1: Calling unstable service
+2026-06-05 15:36:39,225 [INFO] DemoSystem - Attempt 2: Calling unstable service
+2026-06-05 15:36:41,228 [INFO] DemoSystem - Attempt 3: Calling unstable service
+2026-06-05 15:36:41,730 [INFO] DemoSystem - Attempt 4: Calling unstable service
+2026-06-05 15:36:43,733 [INFO] DemoSystem - Attempt 5: Calling unstable service
+2026-06-05 15:36:44,235 [INFO] DemoSystem - Stats: Success=3, Failures=2
+2026-06-05 15:36:44,235 [INFO] DemoSystem - Request 1: Checking circuit state: closed
+2026-06-05 15:37:54,117 [DEBUG] DemoSystem - This is DEBUG message - detailed diagnostic
+2026-06-05 15:37:54,117 [INFO] DemoSystem - This is INFO message - normal operation
+2026-06-05 15:37:54,117 [WARNING] DemoSystem - This is WARNING message - something suspicious
+2026-06-05 15:37:54,117 [ERROR] DemoSystem - This is ERROR message - operation failed
+2026-06-05 15:37:54,117 [INFO] DemoSystem - Business event with properties
+2026-06-05 15:37:54,118 [INFO] DemoSystem - Attempt 1: Calling unstable service
+2026-06-05 15:37:55,619 [ERROR] DemoSystem - [FAIL] Failed after retries: Temporary network error
+2026-06-05 15:37:56,120 [INFO] DemoSystem - Attempt 2: Calling unstable service
+2026-06-05 15:37:57,622 [ERROR] DemoSystem - [FAIL] Failed after retries: Business validation failed
+2026-06-05 15:37:58,122 [INFO] DemoSystem - Attempt 3: Calling unstable service
+2026-06-05 15:37:59,624 [INFO] DemoSystem - [OK] Success: {'status': 'success', 'data': 'Operation completed'}
+2026-06-05 15:38:00,124 [INFO] DemoSystem - Attempt 4: Calling unstable service
+2026-06-05 15:38:00,124 [INFO] DemoSystem - [OK] Success: {'status': 'success', 'data': 'Operation completed'}
+2026-06-05 15:38:00,625 [INFO] DemoSystem - Attempt 5: Calling unstable service
+2026-06-05 15:38:00,625 [INFO] DemoSystem - [OK] Success: {'status': 'success', 'data': 'Operation completed'}
+2026-06-05 15:38:01,125 [INFO] DemoSystem - Stats: Success=3, Failures=2
+2026-06-05 15:38:01,125 [INFO] DemoSystem - Request 1: Checking circuit state: closed
