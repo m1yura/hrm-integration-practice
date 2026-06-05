@@ -39,7 +39,7 @@ print("=" * 60)
 modules = [
     ("Employees", "python module_a_employees.py", 5001, "http://localhost:5001/employees"),
     ("Vacancies", "python module_b_vacancies.py", 5002, "http://localhost:5002/vacancies"),
-    ("Applications", "python module_c_applications.py", 8000, "http://localhost:8000/applications"),
+    ("Applications", "python module_c_applications.py", 8001, "http://localhost:8001/applications"),
 ]
 
 processes = []
@@ -93,7 +93,7 @@ try:
     
     # Test 4: Get all applications
     print("\n4. Testing GET /applications...")
-    r = requests.get("http://localhost:8000/applications", timeout=5)
+    r = requests.get("http://localhost:8001/applications", timeout=5)
     assert r.status_code == 200
     data = r.json()
     assert len(data) >= 1

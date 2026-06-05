@@ -1,0 +1,9 @@
+.runvenv/
+logs/*.err.log
+logs/*.out.log
+logs/*.proc.err.log
+logs/*.proc.out.log
+logs/*.start.log
+logs/pythonw_startprocess_test.log
+logs/ps_start_test*.log
+logs/start_site.log

@@ -11,7 +11,7 @@ app = Flask(__name__, static_folder='static')
 API_URLS = {
     'employees': 'http://127.0.0.1:5001',
     'vacancies': 'http://127.0.0.1:5002',
-    'applications': 'http://127.0.0.1:8000'
+    'applications': 'http://127.0.0.1:8001'
 }
 
 @app.route('/')
@@ -77,6 +77,6 @@ if __name__ == '__main__':
     print("Make sure all modules are running:")
     print("  Module A (Employees): http://127.0.0.1:5001")
     print("  Module B (Vacancies): http://127.0.0.1:5002")
-    print("  Module C (Applications): http://127.0.0.1:8000")
+    print("  Module C (Applications): http://127.0.0.1:8001")
     print("=" * 60)
     app.run(host='0.0.0.0', port=8080, debug=True)
