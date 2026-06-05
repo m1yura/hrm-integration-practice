@@ -1,0 +1,83 @@
+name: Tests
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  unit-tests:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+    
+    - name: Install dependencies
+      run: |
+        pip install requests
+        pip install pytest
+    
+    - name: Run unit tests
+      run: |
+        cd tests/unit
+        python -m pytest test_adapters.py -v
+
+  integration-tests:
+    runs-on: ubuntu-latest
+    needs: unit-tests
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+    
+    - name: Install dependencies
+      run: |
+        pip install flask fastapi uvicorn pydantic requests pytest
+    
+    - name: Start modules
+      run: |
+        python module_a_employees.py &
+        python module_b_vacancies.py &
+        python module_c_applications.py &
+        sleep 10
+    
+    - name: Run integration tests
+      run: |
+        cd tests/integration
+        python -m pytest test_integration.py -v
+
+  e2e-tests:
+    runs-on: ubuntu-latest
+    needs: integration-tests
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+    
+    - name: Install dependencies
+      run: |
+        pip install flask fastapi uvicorn pydantic requests pytest
+    
+    - name: Start all services
+      run: |
+        python module_a_employees.py &
+        python module_b_vacancies.py &
+        python module_c_applications.py &
+        python ui_server.py &
+        sleep 15
+    
+    - name: Run E2E tests
+      run: |
+        cd tests/e2e
+        python -m pytest test_e2e.py -v
