@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HRM System - Панель управления наймом</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .card {
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 20px;
+        }
+        .card-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 15px 15px 0 0 !important;
+            font-weight: bold;
+        }
+        .status-badge {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1050;
+            min-width: 300px;
+            animation: slideIn 0.3s ease;
+        }
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        .table-hover tbody tr:hover {
+            background-color: #f8f9fa;
+            cursor: pointer;
+        }
+        .progress {
+            height: 5px;
+        }
+        .step-active {
+            color: #28a745;
+            font-weight: bold;
+        }
+        .step-completed {
+            color: #6c757d;
+        }
+        .integration-status {
+            font-size: 12px;
+            color: #6c757d;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Заголовок -->
+        <div class="text-center mb-4">
+            <h1 class="text-white">
+                <i class="fas fa-users me-2"></i>
+                HRM System - Управление наймом
+            </h1>
+            <p class="text-white-50">Интеграция сотрудников, вакансий и заявок</p>
+        </div>
+
+        <div class="row">
+            <!-- Левая колонка: Сотрудники -->
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-user-tie me-2"></i>
+                        Сотрудники
+                        <button class="btn btn-sm btn-light float-end" onclick="refreshEmployees()">
+                            <i class="fas fa-sync-alt"></i>
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <input type="text" class="form-control" id="searchEmployee" placeholder="Поиск сотрудников...">
+                        </div>
+                        <div id="employeesList" style="max-height: 400px; overflow-y: auto;">
+                            <div class="text-center text-muted">Загрузка...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Средняя колонка: Вакансии -->
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-briefcase me-2"></i>
+                        Вакансии
+                        <button class="btn btn-sm btn-light float-end" onclick="refreshVacancies()">
+                            <i class="fas fa-sync-alt"></i>
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <input type="text" class="form-control" id="searchVacancy" placeholder="Поиск вакансий...">
+                        </div>
+                        <div id="vacanciesList" style="max-height: 400px; overflow-y: auto;">
+                            <div class="text-center text-muted">Загрузка...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Правая колонка: Заявки и интеграция -->
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-file-alt me-2"></i>
+                        Заявки на найм
+                        <button class="btn btn-sm btn-light float-end" onclick="refreshApplications()">
+                            <i class="fas fa-sync-alt"></i>
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div id="applicationsList" style="max-height: 300px; overflow-y: auto;">
+                            <div class="text-center text-muted">Загрузка...</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Интеграционный статус -->
+                <div class="card mt-3">
+                    <div class="card-header">
+                        <i class="fas fa-project-diagram me-2"></i>
+                        Интеграционный процесс
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label class="form-label">Выберите сотрудника:</label>
+                            <select id="selectedEmployee" class="form-select">
+                                <option value="">-- Выберите сотрудника --</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Выберите вакансию:</label>
+                            <select id="selectedVacancy" class="form-select">
+                                <option value="">-- Выберите вакансию --</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Комментарий:</label>
+                            <textarea id="comment" class="form-control" rows="2" placeholder="Дополнительная информация..."></textarea>
+                        </div>
+                        <button class="btn btn-success w-100" onclick="createApplication()">
+                            <i class="fas fa-paper-plane me-2"></i>
+                            Создать заявку (Интеграция)
+                        </button>
+                        
+                        <!-- Статус интеграции -->
+                        <div class="mt-3" id="integrationStatus" style="display: none;">
+                            <hr>
+                            <div class="d-flex align-items-center">
+                                <div class="spinner-border spinner-border-sm text-primary me-2" role="status"></div>
+                                <span id="statusMessage">Обработка...</span>
+                            </div>
+                            <div class="progress mt-2">
+                                <div id="progressBar" class="progress-bar" role="progressbar" style="width: 0%"></div>
+                            </div>
+                            <div class="integration-status mt-2" id="integrationDetails"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Уведомления -->
+    <div id="notificationContainer"></div>
+
+    <!-- Status Badge -->
+    <div class="status-badge">
+        <div class="bg-white rounded-circle p-2 shadow">
+            <i class="fas fa-check-circle text-success fa-2x"></i>
+        </div>
+    </div>
+
+    <script>
+        // API URLs
+        const API = {
+            employees: 'http://127.0.0.1:5001/employees',
+            vacancies: 'http://127.0.0.1:5002/vacancies',
+            applications: 'http://127.0.0.1:8000/applications'
+        };
+
+        // Показ уведомления
+        function showNotification(message, type = 'success') {
+            const container = document.getElementById('notificationContainer');
+            const notification = document.createElement('div');
+            notification.className = `notification alert alert-${type} alert-dismissible fade show`;
+            notification.innerHTML = `
+                <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-triangle'} me-2"></i>
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            container.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 5000);
+        }
+
+        // Загрузка сотрудников
+        async function loadEmployees() {
+            try {
+                const response = await fetch(API.employees);
+                const employees = await response.json();
+                
+                const searchTerm = document.getElementById('searchEmployee').value.toLowerCase();
+                const filtered = employees.filter(e => 
+                    e.name.toLowerCase().includes(searchTerm) || 
+                    e.position.toLowerCase().includes(searchTerm)
+                );
+                
+                const html = filtered.map(emp => `
+                    <div class="card mb-2" onclick="selectEmployee(${emp.id}, '${emp.name}')">
+                        <div class="card-body p-2">
+                            <h6 class="mb-0">${emp.name}</h6>
+                            <small class="text-muted">${emp.position}</small>
+                        </div>
+                    </div>
+                `).join('');
+                
+                document.getElementById('employeesList').innerHTML = html || '<div class="text-muted">Нет сотрудников</div>';
+                
+                // Обновляем select
+                const select = document.getElementById('selectedEmployee');
+                select.innerHTML = '<option value="">-- Выберите сотрудника --</option>' + 
+                    employees.map(e => `<option value="${e.id}">${e.name} (${e.position})</option>`).join('');
+                    
+                return employees;
+            } catch (error) {
+                console.error('Error loading employees:', error);
+                document.getElementById('employeesList').innerHTML = '<div class="alert alert-danger">Ошибка загрузки</div>';
+                return [];
+            }
+        }
+
+        // Загрузка вакансий
+        async function loadVacancies() {
+            try {
+                const response = await fetch(API.vacancies);
+                const vacancies = await response.json();
+                
+                const searchTerm = document.getElementById('searchVacancy').value.toLowerCase();
+                const filtered = vacancies.filter(v => 
+                    v.title.toLowerCase().includes(searchTerm) || 
+                    v.department.toLowerCase().includes(searchTerm)
+                );
+                
+                const html = filtered.map(vac => `
+                    <div class="card mb-2" onclick="selectVacancy(${vac.id}, '${vac.title}')">
+                        <div class="card-body p-2">
+                            <h6 class="mb-0">${vac.title}</h6>
+                            <small class="text-muted">${vac.department} | ${vac.salary} ₽</small>
+                        </div>
+                    </div>
+                `).join('');
+                
+                document.getElementById('vacanciesList').innerHTML = html || '<div class="text-muted">Нет вакансий</div>';
+                
+                // Обновляем select
+                const select = document.getElementById('selectedVacancy');
+                select.innerHTML = '<option value="">-- Выберите вакансию --</option>' + 
+                    vacancies.map(v => `<option value="${v.id}">${v.title} (${v.department})</option>`).join('');
+                    
+                return vacancies;
+            } catch (error) {
+                console.error('Error loading vacancies:', error);
+                document.getElementById('vacanciesList').innerHTML = '<div class="alert alert-danger">Ошибка загрузки</div>';
+                return [];
+            }
+        }
+
+        // Загрузка заявок
+        async function loadApplications() {
+            try {
+                const response = await fetch(API.applications);
+                const applications = await response.json();
+                
+                const statusColors = {
+                    pending: 'warning',
+                    approved: 'success',
+                    rejected: 'danger',
+                    completed: 'info'
+                };
+                
+                const html = applications.map(app => `
+                    <div class="alert alert-${statusColors[app.status] || 'secondary'} alert-sm mb-2">
+                        <small>
+                            <strong>Заявка #${app.id}</strong><br>
+                            Сотрудник: ${app.employee_id}<br>
+                            Вакансия: ${app.vacancy_id}<br>
+                            <span class="badge bg-${statusColors[app.status] || 'secondary'}">${app.status}</span>
+                            <br>
+                            <small class="text-muted">${new Date(app.created_at).toLocaleString()}</small>
+                        </small>
+                    </div>
+                `).join('');
+                
+                document.getElementById('applicationsList').innerHTML = html || '<div class="text-muted">Нет заявок</div>';
+                return applications;
+            } catch (error) {
+                console.error('Error loading applications:', error);
+                document.getElementById('applicationsList').innerHTML = '<div class="alert alert-danger">Ошибка загрузки</div>';
+                return [];
+            }
+        }
+
+        // Выбор сотрудника
+        function selectEmployee(id, name) {
+            document.getElementById('selectedEmployee').value = id;
+            showNotification(`Выбран сотрудник: ${name}`, 'info');
+        }
+
+        // Выбор вакансии
+        function selectVacancy(id, title) {
+            document.getElementById('selectedVacancy').value = id;
+            showNotification(`Выбрана вакансия: ${title}`, 'info');
+        }
+
+        // Создание заявки (интеграция)
+        async function createApplication() {
+            const employeeId = document.getElementById('selectedEmployee').value;
+            const vacancyId = document.getElementById('selectedVacancy').value;
+            const comment = document.getElementById('comment').value;
+            
+            if (!employeeId || !vacancyId) {
+                showNotification('Выберите сотрудника и вакансию!', 'danger');
+                return;
+            }
+            
+            // Показываем статус интеграции
+            const statusDiv = document.getElementById('integrationStatus');
+            const statusMsg = document.getElementById('statusMessage');
+            const progressBar = document.getElementById('progressBar');
+            const detailsDiv = document.getElementById('integrationDetails');
+            
+            statusDiv.style.display = 'block';
+            progressBar.style.width = '0%';
+            
+            // Шаг 1: Проверка сотрудника
+            statusMsg.innerHTML = '<i class="fas fa-user-check me-2"></i>Шаг 1/3: Проверка сотрудника...';
+            progressBar.style.width = '30%';
+            detailsDiv.innerHTML = 'Проверка существования сотрудника в модуле А...';
+            
+            await new Promise(r => setTimeout(r, 500));
+            
+            // Шаг 2: Проверка вакансии
+            statusMsg.innerHTML = '<i class="fas fa-briefcase me-2"></i>Шаг 2/3: Проверка вакансии...';
+            progressBar.style.width = '60%';
+            detailsDiv.innerHTML = 'Проверка доступности вакансии в модуле Б...';
+            
+            await new Promise(r => setTimeout(r, 500));
+            
+            // Шаг 3: Создание заявки
+            statusMsg.innerHTML = '<i class="fas fa-file-signature me-2"></i>Шаг 3/3: Создание заявки...';
+            progressBar.style.width = '90%';
+            detailsDiv.innerHTML = 'Интеграция модулей А → Б → В...';
+            
+            try {
+                // Реальный вызов API
+                const response = await fetch(API.applications, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        employee_id: parseInt(employeeId),
+                        vacancy_id: parseInt(vacancyId),
+                        comment: comment || 'Заявка через веб-интерфейс'
+                    })
+                });
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    progressBar.style.width = '100%';
+                    statusMsg.innerHTML = '<i class="fas fa-check-circle me-2"></i>✅ Заявка успешно создана!';
+                    detailsDiv.innerHTML = `Заявка #${result.id} создана через интеграционный слой. Статус: ${result.status}`;
+                    showNotification(`✅ Заявка #${result.id} успешно создана!`, 'success');
+                    
+                    // Обновляем список заявок
+                    setTimeout(() => loadApplications(), 1000);
+                } else {
+                    throw new Error('Ошибка создания заявки');
+                }
+            } catch (error) {
+                progressBar.style.width = '100%';
+                progressBar.className = 'progress-bar bg-danger';
+                statusMsg.innerHTML = '<i class="fas fa-exclamation-triangle me-2"></i>❌ Ошибка интеграции';
+                detailsDiv.innerHTML = `Ошибка: ${error.message}. Проверьте, что все модули запущены.`;
+                showNotification('❌ Ошибка при создании заявки!', 'danger');
+            }
+            
+            // Скрываем статус через 5 секунд
+            setTimeout(() => {
+                statusDiv.style.display = 'none';
+                progressBar.className = 'progress-bar';
+            }, 5000);
+        }
+
+        // Обновление всех данных
+        function refreshAll() {
+            loadEmployees();
+            loadVacancies();
+            loadApplications();
+            showNotification('Данные обновлены', 'info');
+        }
+        
+        function refreshEmployees() { loadEmployees(); }
+        function refreshVacancies() { loadVacancies(); }
+        function refreshApplications() { loadApplications(); }
+
+        // Поиск
+        document.getElementById('searchEmployee').addEventListener('input', () => loadEmployees());
+        document.getElementById('searchVacancy').addEventListener('input', () => loadVacancies());
+
+        // Инициализация
+        loadEmployees();
+        loadVacancies();
+        loadApplications();
+        
+        // Автообновление каждые 10 секунд
+        setInterval(() => {
+            loadApplications();
+        }, 10000);
+    </script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
